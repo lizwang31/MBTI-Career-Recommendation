@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MBTI Recommendation Result</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f7fa;
+        }
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        h2.mbti-type {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .mbti-type span {
+            color: #4682B4;
+        }
+        .mbti-desc {
+            font-style: italic;
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .career-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 2px;
+        }
+        .career-desc {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card p-4 w-100" style="max-width: 480px;">
+            <div class="text-center mb-4">
+                <h2 class="mbti-type">Your MBTI Type: <span>{{ mbti }}</span></h2>
+                <p class="mbti-desc">{{ description }}</p>
+            </div>
+            <h5 class="text-primary fw-bold mb-3 text-center">Recommended Careers</h5>
+            <div class="mb-4">
+                {% for c in careers %}
+                    <div class="career-title">{{ c.title }}</div>
+                    {% if c.desc %}<div class="career-desc">{{ c.desc }}</div>{% endif %}
+                {% endfor %}
+            </div>
+            <div class="text-center mb-2">
+                <a href="/" class="btn btn-primary me-2">Back to Questionnaire</a>
+                <a href="/restart" class="btn btn-outline-danger">Restart</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

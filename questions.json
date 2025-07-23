@@ -1,0 +1,123 @@
+[
+    {
+      "id": 1,
+      "text": "After a bad day, which is more likely to lift your spirits?",
+      "dimension": "EI",
+      "positive": "I"
+    },
+    {
+      "id": 2,
+      "text": "Do you prefer deep philosophical conversations over small talk?",
+      "dimension": "EI",
+      "positive": "I"
+    },
+    {
+      "id": 3,
+      "text": "Do you enjoy being the center of attention at social events?",
+      "dimension": "EI",
+      "positive": "E"
+    },
+    {
+      "id": 4,
+      "text": "You feel more energized after spending time alone.",
+      "dimension": "EI",
+      "positive": "I"
+    },
+    {
+      "id": 5,
+      "text": "You focus on facts and details more than ideas and concepts.",
+      "dimension": "SN",
+      "positive": "S"
+    },
+    {
+      "id": 6,
+      "text": "You trust your gut instincts more than experience.",
+      "dimension": "SN",
+      "positive": "N"
+    },
+    {
+      "id": 7,
+      "text": "You enjoy interpreting meanings behind art or literature.",
+      "dimension": "SN",
+      "positive": "N"
+    },
+    {
+      "id": 8,
+      "text": "You are more practical than imaginative.",
+      "dimension": "SN",
+      "positive": "S"
+    },
+    {
+      "id": 9,
+      "text": "You make decisions with your head rather than your heart.",
+      "dimension": "TF",
+      "positive": "T"
+    },
+    {
+      "id": 10,
+      "text": "You find it difficult to criticize someone directly.",
+      "dimension": "TF",
+      "positive": "F"
+    },
+    {
+      "id": 11,
+      "text": "You believe empathy is more important than logic.",
+      "dimension": "TF",
+      "positive": "F"
+    },
+    {
+      "id": 12,
+      "text": "You remain objective even in emotional situations.",
+      "dimension": "TF",
+      "positive": "T"
+    },
+    {
+      "id": 13,
+      "text": "You like to stick to a routine and avoid surprises.",
+      "dimension": "JP",
+      "positive": "J"
+    },
+    {
+      "id": 14,
+      "text": "You prefer to improvise rather than plan ahead.",
+      "dimension": "JP",
+      "positive": "P"
+    },
+    {
+      "id": 15,
+      "text": "You feel uneasy when things are not decided.",
+      "dimension": "JP",
+      "positive": "J"
+    },
+    {
+      "id": 16,
+      "text": "You enjoy exploring unexpected opportunities.",
+      "dimension": "JP",
+      "positive": "P"
+    },
+    {
+      "id": 17,
+      "text": "You recharge best when you are alone.",
+      "dimension": "EI",
+      "positive": "I"
+    },
+    {
+      "id": 18,
+      "text": "You usually notice small details others miss.",
+      "dimension": "SN",
+      "positive": "S"
+    },
+    {
+      "id": 19,
+      "text": "You prefer clear rules over flexible guidelines.",
+      "dimension": "JP",
+      "positive": "J"
+    },
+    {
+      "id": 20,
+      "text": "You feel emotions deeply and easily read others' feelings.",
+      "dimension": "TF",
+      "positive": "F"
+    }
+  ]
+  
