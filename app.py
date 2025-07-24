@@ -1,12 +1,13 @@
+# app.py
 from flask import Flask, render_template, request, redirect, url_for, session
 import json
 import subprocess
-import os
 import re
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Replace with a secure random key in production
 
+# Static descriptions for each MBTI type
 descriptions = {
     "ISTJ": "Responsible, reliable, and organized. ISTJs value traditions and prefer clear structures and plans.",
     "ISFJ": "Caring, loyal, and meticulous. ISFJs are devoted helpers who enjoy preserving harmony and supporting others.",
@@ -26,87 +27,52 @@ descriptions = {
     "ENTJ": "Confident, strategic, and assertive. ENTJs are natural organizers who thrive in leadership and decision-making."
 }
 
-# Load questionnaire
 def load_questions():
     with open('questions.json', 'r', encoding='utf-8') as f:
         return json.load(f)
 
-# Calculate MBTI type
 def calculate_mbti(answers, questions):
-    # 维度映射：Python维度 -> Prolog维度
+    # Build a Prolog list of resp(Dimension,Side,Score) terms
     dim_map = {
         'EI': 'e_i',
         'SN': 's_n',
         'TF': 't_f',
-        'JP': 'j_p',
+        'JP': 'j_p'
     }
-    # 维度分数初始化
-    scores = {
-        'E': 0, 'I': 0,
-        'S': 0, 'N': 0,
-        'T': 0, 'F': 0,
-        'J': 0, 'P': 0
-    }
-    # 维度两侧映射
-    dim_sides = {
-        'e_i': ('E', 'I'),
-        's_n': ('S', 'N'),
-        't_f': ('T', 'F'),
-        'j_p': ('J', 'P'),
-    }
-    for idx, answer in enumerate(answers):
+    terms = []
+    for idx, ans in enumerate(answers):
         q = questions[idx]
-        qid = q.get('id', idx+1)
-        py_dim = q['dimension']
-        prolog_dim = dim_map[py_dim]
-        pos_side = q['positive'].lower()  # 'E'/'I' -> 'e'/'i'
-        user_score = int(answer)
-        # 调用 Prolog 计算得分
-        prolog_query = f"rule({qid}, {prolog_dim}, {pos_side}, {user_score}, Score), write(Score), halt."
-        try:
-            result = subprocess.run(
-                ['swipl', '-q', '-s', 'mbti_scores.pl', '-g', prolog_query],
-                capture_output=True, text=True, timeout=3
-            )
-            score_str = result.stdout.strip()
-            score = int(score_str) if score_str.isdigit() else 0
-        except Exception as e:
-            print(f"Prolog error on Q{qid}: {e}")
-            score = 0
-        # 累加到对应维度
-        # 判断正向是哪一侧
-        left, right = dim_sides[prolog_dim]
-        if pos_side == left.lower():
-            scores[left] += score
-        else:
-            scores[right] += score
-    # 生成 MBTI 字符串
-    mbti = ''
-    mbti += 'E' if scores['E'] >= scores['I'] else 'I'
-    mbti += 'S' if scores['S'] >= scores['N'] else 'N'
-    mbti += 'T' if scores['T'] >= scores['F'] else 'F'
-    mbti += 'J' if scores['J'] >= scores['P'] else 'P'
-    return mbti
+        prolog_dim = dim_map[q['dimension']]
+        side = q['positive'].lower()             # 'E' or 'I' etc.
+        terms.append(f"resp({prolog_dim},{side},{ans})")
+    prolog_list = '[' + ','.join(terms) + ']'
 
-# Call Prolog to get career recommendations
+    # Call Prolog to compute the MBTI code
+    query = f"calculate_mbti({prolog_list},MBTI), write(MBTI), halt."
+    result = subprocess.run(
+        ['swipl', '-q', '-s', 'mbti_scores.pl', '-g', query],
+        capture_output=True, text=True, timeout=5
+    )
+    return result.stdout.strip()
+
 def get_career_recommendation(mbti_type):
-    query = f"findall(career('{mbti_type}',Job,Reason), career('{mbti_type}',Job,Reason), Careers), write(Careers), halt."
-    try:
-        result = subprocess.run(
-            ['swipl', '-q', '-s', 'mbti_rules.pl', '-g', query],
-            capture_output=True, text=True, timeout=5
-        )
-        output = result.stdout.strip()
-        # Parse Prolog output: [career('ENFP','Marketing Manager','Creative'), ...] or [career(ENFP,Marketing Manager,Creative), ...]
-        pattern = r"career\([^,]+,\s*'?([^,'\)]*)'?\s*,\s*'?([^,'\)]*)'?\s*\)"
-        matches = re.findall(pattern, output)
-        careers = [{'title': m[0], 'desc': m[1]} for m in matches]
-        if not careers:
-            return [{'title': 'No recommendation', 'desc': ''}]
-        return careers
-    except Exception as e:
-        print('Prolog error:', e)
-        return [{'title': 'Prolog error', 'desc': ''}]
+    # Call Prolog to fetch all career/3 facts for this MBTI
+    query = (
+        f"findall(career('{mbti_type}',Job,Reason), career('{mbti_type}',Job,Reason), L), "
+        f"forall(member(career(_,J,R),L), (write(J), write(':!:'), write(R), nl)), halt."
+    )
+    result = subprocess.run(
+        ['swipl', '-q', '-s', 'mbti_rules.pl', '-g', query],
+        capture_output=True, text=True, timeout=5
+    )
+    careers = []
+    for line in result.stdout.strip().splitlines():
+        if ':!:' in line:
+            title, desc = line.split(':!:', 1)
+            careers.append({'title': title, 'desc': desc})
+    if not careers:
+        careers = [{'title': 'No recommendation', 'desc': ''}]
+    return careers
 
 @app.route('/', methods=['GET', 'POST'])
 def questionnaire():
@@ -116,16 +82,26 @@ def questionnaire():
     if 'mbti' in session and 'careers' in session:
         last_result = {'mbti': session['mbti'], 'careers': session['careers']}
     if request.method == 'POST':
-        answers = [request.form.get(f"q{i}") for i in range(len(questions))]
+        answers = [int(request.form.get(f"q{i}")) for i in range(len(questions))]
         if None in answers:
-            return render_template('questionnaire.html', questions=questions, error='Please complete all questions', last_result=last_result, saved_answers=answers)
+            return render_template('questionnaire.html',
+                                   questions=questions,
+                                   error='Please complete all questions',
+                                   last_result=last_result,
+                                   saved_answers=saved_answers)
         mbti = calculate_mbti(answers, questions)
         careers = get_career_recommendation(mbti)
         session['mbti'] = mbti
         session['careers'] = careers
         session['answers'] = answers
-        return render_template('result.html', mbti=mbti, careers=careers, description=descriptions.get(mbti, "No description available."))
-    return render_template('questionnaire.html', questions=questions, last_result=last_result, saved_answers=saved_answers)
+        return render_template('result.html',
+                               mbti=mbti,
+                               careers=careers,
+                               description=descriptions.get(mbti, "No description available."))
+    return render_template('questionnaire.html',
+                           questions=questions,
+                           last_result=last_result,
+                           saved_answers=saved_answers)
 
 @app.route('/restart')
 def restart():
@@ -133,4 +109,4 @@ def restart():
     return redirect(url_for('questionnaire'))
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(host='0.0.0.0', port=5000, debug=True)

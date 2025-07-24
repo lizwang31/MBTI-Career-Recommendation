@@ -1,7 +1,8 @@
 % mbti_rules.pl
-% MBTI-based career recommendation expert system
+% ----------------
+% All of your career(MBTI,JobTitle,Reason) facts live here.
 
-% Format: career(MBTI, JobTitle, Reason).
+:- module(mbti_rules, [career/3]).
 
 career('INTJ', 'Software Architect', 'Strategic and analytical thinkers who excel in complex planning.').
 career('INTJ', 'Scientist', 'Enjoy exploring theoretical systems and solving deep problems.').
@@ -66,8 +67,3 @@ career('ESTP', 'Real Estate Agent', 'Bold and sociable; skilled in negotiation.'
 career('ESFP', 'Performer', 'Lively and spontaneous; enjoy the spotlight.').
 career('ESFP', 'Recreational Therapist', 'Enthusiastic and compassionate; love bringing joy.').
 career('ESFP', 'Flight Attendant', 'Energetic and service-oriented; love dynamic environments.').
-
-
-% Recommend careers for a given MBTI type
-recommend(MBTI, Careers) :-
-    findall((Job, Reason), career(MBTI, Job, Reason), Careers).
