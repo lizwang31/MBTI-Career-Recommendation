@@ -33,30 +33,59 @@ def load_questions():
 
 # Calculate MBTI type
 def calculate_mbti(answers, questions):
-    # Count scores for each dimension (both sides)
-    dimensions = {
+    # 维度映射：Python维度 -> Prolog维度
+    dim_map = {
+        'EI': 'e_i',
+        'SN': 's_n',
+        'TF': 't_f',
+        'JP': 'j_p',
+    }
+    # 维度分数初始化
+    scores = {
         'E': 0, 'I': 0,
         'S': 0, 'N': 0,
         'T': 0, 'F': 0,
         'J': 0, 'P': 0
     }
+    # 维度两侧映射
+    dim_sides = {
+        'e_i': ('E', 'I'),
+        's_n': ('S', 'N'),
+        't_f': ('T', 'F'),
+        'j_p': ('J', 'P'),
+    }
     for idx, answer in enumerate(answers):
         q = questions[idx]
-        dim = q['dimension']
-        pos = q['positive']
-        score = int(answer)
-        if pos:
-            dimensions[dim[0]] += score
-            dimensions[dim[1]] += 6 - score
+        qid = q.get('id', idx+1)
+        py_dim = q['dimension']
+        prolog_dim = dim_map[py_dim]
+        pos_side = q['positive'].lower()  # 'E'/'I' -> 'e'/'i'
+        user_score = int(answer)
+        # 调用 Prolog 计算得分
+        prolog_query = f"rule({qid}, {prolog_dim}, {pos_side}, {user_score}, Score), write(Score), halt."
+        try:
+            result = subprocess.run(
+                ['swipl', '-q', '-s', 'mbti_scores.pl', '-g', prolog_query],
+                capture_output=True, text=True, timeout=3
+            )
+            score_str = result.stdout.strip()
+            score = int(score_str) if score_str.isdigit() else 0
+        except Exception as e:
+            print(f"Prolog error on Q{qid}: {e}")
+            score = 0
+        # 累加到对应维度
+        # 判断正向是哪一侧
+        left, right = dim_sides[prolog_dim]
+        if pos_side == left.lower():
+            scores[left] += score
         else:
-            dimensions[dim[0]] += 6 - score
-            dimensions[dim[1]] += score
-    # Determine MBTI type by higher score in each dimension
+            scores[right] += score
+    # 生成 MBTI 字符串
     mbti = ''
-    mbti += 'E' if dimensions['E'] >= dimensions['I'] else 'I'
-    mbti += 'S' if dimensions['S'] >= dimensions['N'] else 'N'
-    mbti += 'T' if dimensions['T'] >= dimensions['F'] else 'F'
-    mbti += 'J' if dimensions['J'] >= dimensions['P'] else 'P'
+    mbti += 'E' if scores['E'] >= scores['I'] else 'I'
+    mbti += 'S' if scores['S'] >= scores['N'] else 'N'
+    mbti += 'T' if scores['T'] >= scores['F'] else 'F'
+    mbti += 'J' if scores['J'] >= scores['P'] else 'P'
     return mbti
 
 # Call Prolog to get career recommendations
