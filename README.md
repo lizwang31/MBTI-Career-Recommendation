@@ -1,79 +1,115 @@
-# MBTI-Career Recommendation System
+# MBTI-Based Career Recommendation System
 
-A web-based career recommendation system based on MBTI personality types. Users complete a 20-question Likert-scale questionnaire, receive their MBTI type, and get personalized career suggestions powered by Prolog rules.
-
-## Features
-- Interactive MBTI questionnaire (Likert scale, 1–5)
-- Automatic MBTI type calculation with explanation
-- Career recommendations with reasons, powered by Prolog (`mbti_rules.pl`)
-- Modern, responsive UI (Bootstrap 5)
-- Session-based result saving and restart functionality
-
-## Tech Stack
-- **Backend:** Python 3, Flask
-- **Frontend:** HTML, Bootstrap 5, Jinja2
-- **Logic Engine:** SWI-Prolog
-
-## File Structure
-```
-MBTI-Career Recommendation/
-├── app.py                  # Flask backend & MBTI logic
-├── mbti_rules.pl           # Prolog rules for career recommendation
-├── questions.json          # MBTI questionnaire data
-├── templates/
-│   ├── questionnaire.html  # Questionnaire page
-│   └── result.html         # Result page
-└── README.md               # Project documentation
-```
-
-## Setup & Installation
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd MBTI-Career\ Recommendation
-   ```
-2. **Create and activate a virtual environment**
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-3. **Install dependencies**
-   ```bash
-   pip install flask
-   ```
-4. **Install SWI-Prolog**
-   - [Download and install SWI-Prolog](https://www.swi-prolog.org/Download.html) for your OS.
-   - Ensure `swipl` is available in your PATH.
-
-## Usage
-1. **Start the Flask app**
-   ```bash
-   python app.py
-   ```
-2. **Open your browser and visit**
-   [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
-3. **Fill out the questionnaire and submit**
-   - Your MBTI type and recommended careers will be displayed.
-   - You can return to the questionnaire, and your previous answers/results will be saved until you click "Restart".
-
-## Prolog Integration
-- Career recommendations are defined in `mbti_rules.pl` using the format:
-  ```prolog
-  career('ENFP', 'Marketing Manager', 'Creative, energetic, and skilled at communication.').
-  career('ENFP', 'Public Relations Specialist', 'Excellent with people and quick thinkers.').
-  ```
-- You can add or modify rules for all 16 MBTI types.
-- The Flask backend calls Prolog using `subprocess` and parses the results for display.
-
-## Customization
-- **Add/modify questions:** Edit `questions.json`.
-- **Add/modify career rules:** Edit `mbti_rules.pl`.
-- **Change MBTI descriptions:** Edit the `descriptions` dictionary in `app.py`.
-
-## Credits
-- MBTI® is a registered trademark of the Myers-Briggs Company.
-- This project is for educational and demonstration purposes only.
+This web-based expert system provides career recommendations based on a user’s MBTI personality type. Users complete a structured questionnaire, and the system infers their MBTI type using Prolog logic rules before presenting tailored career suggestions.
 
 ---
 
-Feel free to contribute or adapt for your own use! 
+## 🚀 Project Overview
+
+- **Interactive MBTI Questionnaire**: Users complete a web-based form assessing personality traits.
+- **Prolog-Based Inference**: Logical rules in SWI-Prolog compute MBTI types based on submitted responses.
+- **Career Recommendation Engine**: Careers are retrieved from a Prolog knowledge base linked to each MBTI type.
+- **Flask Web Framework**: Python Flask handles request routing, form submission, and response rendering.
+- **Responsive Design**: Clean, responsive UI built using HTML, Bootstrap 5, and Jinja2 templating.
+
+---
+
+## ⚙️ Technology Stack
+
+### Backend
+
+- **Python 3** – Core application logic and API handling.
+- **Flask** – Lightweight web framework for routing and server-side rendering.
+- **SWI-Prolog** – Inference engine for personality typing and rule-based career matching.
+
+### Frontend
+
+- **HTML + Jinja2** – Dynamic questionnaire and results pages.
+- **Bootstrap 5** – Modern responsive styling.
+- **Custom CSS** – Minor layout adjustments and theming.
+
+### Data & Logic
+
+- `questions.json` – Question bank used in the MBTI questionnaire.
+- `mbti_scores.pl` – Computes MBTI type from questionnaire scores using logical rules.
+- `mbti_rules.pl` – Maps MBTI types to associated career options and rationales.
+
+---
+
+## 📂 Project Structure
+
+```
+mbti-career-app/
+├── app.py                  # Flask application entry point
+├── questions.json          # MBTI questionnaire data
+├── mbti_scores.pl          # Prolog: MBTI type scoring logic
+├── mbti_rules.pl           # Prolog: Career recommendation rules
+├── templates/
+│   ├── questionnaire.html  # Questionnaire form page
+│   └── result.html         # Results display page
+└── static/                 # CSS, images, and optional static assets
+```
+
+---
+
+## 🚦 Quickstart Guide
+
+### Prerequisites
+
+- Python 3.x  
+- [SWI-Prolog](https://www.swi-prolog.org/Download.html) installed  
+- pip (Python package manager)
+
+### Installation Steps
+
+```bash
+git clone https://github.com/yourusername/mbti-career-app.git
+cd mbti-career-app
+pip install flask
+flask --app app.py run --host=0.0.0.0 --port=5000
+```
+
+Then open in browser:  
+👉 [http://localhost:5000](http://localhost:5000)
+
+---
+
+## 🔁 System Workflow
+
+1. **User Input**: Users complete a 20-question Likert-scale questionnaire.
+2. **Flask Backend**: Parses and structures responses for Prolog.
+3. **Prolog Inference**:
+   - `mbti_scores.pl` computes four-letter MBTI type from scores.
+   - `mbti_rules.pl` returns matching careers with rationales.
+4. **Flask Rendering**: Displays results on a styled HTML page.
+
+---
+
+## 📊 MBTI Scoring Logic
+
+- Answers are mapped from 1–5 scale to –2 through +2.
+- Responses aligned with the second MBTI pole (I, N, F, P) are scored inversely.
+- Each dimension (e.g., E vs. I) is scored independently.
+- The final MBTI type reflects the dominant preference in each dimension.
+
+---
+
+## 🔮 Future Enhancements
+
+- Add more career options and rationales per MBTI type.
+- Introduce user feedback to refine recommendations.
+- Support additional user attributes (e.g., interests, skills).
+- Add multilingual support and accessibility features.
+- Dockerize for containerized deployment and cloud hosting.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
